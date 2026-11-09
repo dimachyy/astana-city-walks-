@@ -36,12 +36,17 @@ export const FALLBACK_LOCATIONS = [
 ]
 
 export const FEATURED_FALLBACK = [
-  { id: 'featured-baiterek', name: 'Байтерек', lon: 71.4304, lat: 51.1283, icon: '🏛️', description: 'Главный символ Астаны и одна из самых узнаваемых точек города.', article: 'https://ru.wikipedia.org/wiki/Байтерек' },
-  { id: 'featured-museum', name: 'Национальный музей Казахстана', lon: 71.4681, lat: 51.1256, icon: '🏺', description: 'Большой музейный комплекс с экспозициями об истории и культуре Казахстана.', article: 'https://ru.wikipedia.org/wiki/Национальный_музей_Республики_Казахстан' },
-  { id: 'featured-khan', name: 'Хан Шатыр', lon: 71.4037, lat: 51.1326, icon: '🏙️', description: 'Крупный торгово-развлекательный центр в необычном архитектурном здании.', article: 'https://ru.wikipedia.org/wiki/Хан-Шатыр' },
-  { id: 'featured-peace', name: 'Дворец мира и согласия', lon: 71.4694, lat: 51.1235, icon: '🔺', description: 'Оригинальное здание в форме пирамиды рядом с важными достопримечательностями.', article: 'https://ru.wikipedia.org/wiki/Дворец_мира_и_согласия' },
-  { id: 'featured-expo', name: 'Территория EXPO', lon: 71.4188, lat: 51.0907, icon: '🌐', description: 'Современное пространство с необычной архитектурой и прогулочными зонами.', article: 'https://ru.wikipedia.org/wiki/Астана_Экспо' },
-  { id: 'featured-garden', name: 'Ботанический сад', lon: 71.4171, lat: 51.0904, icon: '🌳', description: 'Большая зелёная территория для спокойной прогулки и отдыха.', article: 'https://ru.wikipedia.org/wiki/Ботанический_сад_(Астана)' },
+  { id: 'featured-baiterek', name: 'Байтерек', lon: 71.4304, lat: 51.1283, icon: '🏛️', description: 'Главная смотровая башня и символ Астаны. С верхнего уровня открывается вид на центр города.', article: 'https://ru.wikipedia.org/wiki/Байтерек' },
+  { id: 'featured-museum', name: 'Национальный музей Казахстана', lon: 71.4681, lat: 51.1256, icon: '🏺', description: 'Крупный музей об истории, культуре и искусстве Казахстана.', article: 'https://ru.wikipedia.org/wiki/Национальный_музей_Республики_Казахстан' },
+  { id: 'featured-khan', name: 'Хан Шатыр', lon: 71.4037, lat: 51.1326, icon: '🏙️', description: 'Большой торгово-развлекательный центр в форме шатра с магазинами и развлечениями.', article: 'https://ru.wikipedia.org/wiki/Хан-Шатыр' },
+  { id: 'featured-peace', name: 'Дворец мира и согласия', lon: 71.4694, lat: 51.1235, icon: '🔺', description: 'Пирамида, посвящённая дружбе и согласию народов Казахстана.', article: 'https://ru.wikipedia.org/wiki/Дворец_мира_и_согласия' },
+  { id: 'featured-expo', name: 'Территория EXPO', lon: 71.4188, lat: 51.0907, icon: '🌐', description: 'Современный район с необычной архитектурой, музеями и прогулочными зонами.', article: 'https://ru.wikipedia.org/wiki/Астана_Экспо' },
+  { id: 'featured-garden', name: 'Ботанический сад', lon: 71.4171, lat: 51.0904, icon: '🌳', description: 'Большая зелёная территория для прогулок, отдыха и фотографий.', article: 'https://ru.wikipedia.org/wiki/Ботанический_сад_(Астана)' },
+  { id: 'featured-opera', name: 'Astana Opera', lon: 71.4307, lat: 51.1286, icon: '🎭', description: 'Один из крупнейших театров Астаны с концертами, операми и балетами.', article: 'https://ru.wikipedia.org/wiki/Astana_Opera' },
+  { id: 'featured-mosque', name: 'Мечеть Хазрет Султан', lon: 71.4697, lat: 51.1233, icon: '🕌', description: 'Одна из крупнейших мечетей Центральной Азии с узнаваемой белой архитектурой.', article: 'https://ru.wikipedia.org/wiki/Мечеть_Хазрет_Султан' },
+  { id: 'featured-nuralem', name: 'Музей энергии будущего Нур-Алем', lon: 71.4179, lat: 51.0908, icon: '🔵', description: 'Сферическое здание и музей технологий на территории EXPO.', article: 'https://ru.wikipedia.org/wiki/Нур-Алем' },
+  { id: 'featured-embankment', name: 'Набережная Ишима', lon: 71.4358, lat: 51.1281, icon: '🌊', description: 'Живописное место для спокойной прогулки, фото и отдыха у реки.', article: 'https://ru.wikipedia.org/wiki/Ишим_(река)' },
+  { id: 'featured-lovers-park', name: 'Парк Влюблённых', lon: 71.4237, lat: 51.1322, icon: '🌳', description: 'Небольшой городской парк рядом с прогулочными маршрутами центра.', article: 'https://ru.wikipedia.org/wiki/Парк_Влюблённых_(Астана)' },
 ]
 
 export const AVATARS = [

@@ -120,12 +120,17 @@ const overpassStatements = {
 };
 
 const featuredPlaces = [
-  { id: 'featured-baiterek', name: 'Байтерек', wiki: 'Байтерек', lat: 51.1283, lon: 71.4304, icon: '🏛️', description: 'Главный символ Астаны и одна из самых узнаваемых точек города.' },
-  { id: 'featured-museum', name: 'Национальный музей Казахстана', wiki: 'Национальный музей Республики Казахстан', lat: 51.1256, lon: 71.4681, icon: '🏺', description: 'Большой музейный комплекс с экспозициями об истории и культуре Казахстана.' },
-  { id: 'featured-khan', name: 'Хан Шатыр', wiki: 'Хан-Шатыр', lat: 51.1326, lon: 71.4037, icon: '🏙️', description: 'Крупный торгово-развлекательный центр в необычном архитектурном здании.' },
-  { id: 'featured-peace', name: 'Дворец мира и согласия', wiki: 'Дворец мира и согласия', lat: 51.1235, lon: 71.4694, icon: '🔺', description: 'Оригинальное здание в форме пирамиды рядом с важными достопримечательностями.' },
-  { id: 'featured-expo', name: 'Территория EXPO', wiki: 'Астана Экспо', lat: 51.0907, lon: 71.4188, icon: '🌐', description: 'Современное пространство с необычной архитектурой и прогулочными зонами.' },
-  { id: 'featured-garden', name: 'Ботанический сад', wiki: 'Ботанический сад (Астана)', lat: 51.0904, lon: 71.4171, icon: '🌳', description: 'Большая зелёная территория для спокойной прогулки и отдыха.' },
+  { id: 'featured-baiterek', name: 'Байтерек', wiki: 'Байтерек', imageQuery: 'Байтерек Астана', lat: 51.1283, lon: 71.4304, icon: '🏛️', shortDescription: 'Главная смотровая башня и символ Астаны. С верхнего уровня открывается вид на центр города.' },
+  { id: 'featured-museum', name: 'Национальный музей Казахстана', wiki: 'Национальный музей Республики Казахстан', imageQuery: 'Национальный музей Казахстана Астана', lat: 51.1256, lon: 71.4681, icon: '🏺', shortDescription: 'Крупный музей об истории, культуре и искусстве Казахстана.' },
+  { id: 'featured-khan', name: 'Хан Шатыр', wiki: 'Хан-Шатыр', imageQuery: 'Хан Шатыр Астана', lat: 51.1326, lon: 71.4037, icon: '🏙️', shortDescription: 'Большой торгово-развлекательный центр в форме шатра с магазинами и развлечениями.' },
+  { id: 'featured-peace', name: 'Дворец мира и согласия', wiki: 'Дворец мира и согласия', imageQuery: 'Дворец мира и согласия Астана', lat: 51.1235, lon: 71.4694, icon: '🔺', shortDescription: 'Пирамида, посвящённая дружбе и согласию народов Казахстана.' },
+  { id: 'featured-expo', name: 'Территория EXPO', wiki: 'Астана Экспо', imageQuery: 'EXPO Астана', lat: 51.0907, lon: 71.4188, icon: '🌐', shortDescription: 'Современный район с необычной архитектурой, музеями и прогулочными зонами.' },
+  { id: 'featured-garden', name: 'Ботанический сад', wiki: 'Ботанический сад (Астана)', imageQuery: 'Ботанический сад Астана', lat: 51.0904, lon: 71.4171, icon: '🌳', shortDescription: 'Большая зелёная территория для прогулок, отдыха и фотографий.' },
+  { id: 'featured-opera', name: 'Astana Opera', wiki: 'Astana Opera', imageQuery: 'Astana Opera', lat: 51.1286, lon: 71.4307, icon: '🎭', shortDescription: 'Один из крупнейших театров Астаны с концертами, операми и балетами.' },
+  { id: 'featured-mosque', name: 'Мечеть Хазрет Султан', wiki: 'Мечеть Хазрет Султан', imageQuery: 'Мечеть Хазрет Султан Астана', lat: 51.1233, lon: 71.4697, icon: '🕌', shortDescription: 'Одна из крупнейших мечетей Центральной Азии с узнаваемой белой архитектурой.' },
+  { id: 'featured-nuralem', name: 'Музей энергии будущего Нур-Алем', wiki: 'Нур-Алем', imageQuery: 'Нур Алем Астана', lat: 51.0908, lon: 71.4179, icon: '🔵', shortDescription: 'Сферическое здание и музей технологий на территории EXPO.' },
+  { id: 'featured-embankment', name: 'Набережная Ишима', wiki: 'Ишим (река)', imageQuery: 'Набережная Ишима Астана', lat: 51.1281, lon: 71.4358, icon: '🌊', shortDescription: 'Живописное место для спокойной прогулки, фото и отдыха у реки.' },
+  { id: 'featured-lovers-park', name: 'Парк Влюблённых', wiki: 'Парк Влюблённых (Астана)', imageQuery: 'Парк Влюбленных Астана', lat: 51.1322, lon: 71.4237, icon: '🌳', shortDescription: 'Небольшой городской парк рядом с прогулочными маршрутами центра.' },
 ];
 
 // ---------- простой кэш в памяти ----------
@@ -158,10 +163,10 @@ const loadPopular = () => Promise.all(featuredPlaces.map(async (place) => {
   try {
     const response = await fetch(`https://ru.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(place.wiki)}`);
     const summary = response.ok ? await response.json() : {};
-    const image = summary.thumbnail?.source || await commonsImage(place.name);
-    return { ...place, description: summary.extract || place.description, image, article: summary.content_urls?.desktop?.page || `https://ru.wikipedia.org/wiki/${encodeURIComponent(place.wiki)}` };
+    const image = summary.thumbnail?.source || await commonsImage(place.imageQuery || place.name);
+    return { ...place, description: place.shortDescription || summary.extract || 'Популярное место для прогулки по Астане.', image, article: summary.content_urls?.desktop?.page || `https://ru.wikipedia.org/wiki/${encodeURIComponent(place.wiki)}` };
   } catch (error) {
-    return { ...place, description: place.description, image: '', article: `https://ru.wikipedia.org/wiki/${encodeURIComponent(place.wiki)}` };
+    return { ...place, description: place.shortDescription || 'Популярное место для прогулки по Астане.', image: '', article: `https://ru.wikipedia.org/wiki/${encodeURIComponent(place.wiki)}` };
   }
 }));
 
