@@ -2,7 +2,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 8000;
+// 8000 часто занят другими локальными сервисами. Используем отдельный порт CityWalk.
+const PORT = Number(process.env.CITYWALK_PORT || 8001);
 // Раздаём собранный React (npm run build в папке client)
 const root = path.join(__dirname, 'client', 'dist');
 

@@ -19,7 +19,7 @@ React 18 → `react-leaflet@4`, React 19 → `react-leaflet@5` (смотрите
 
 ## Запуск
 - Разработка: `npm run dev` → http://localhost:5173
-- Как раньше, одним файлом: `start-citywalk.cmd` (соберёт клиент и запустит сервер на http://localhost:8000)
+- Как раньше, одним файлом: `start-citywalk.cmd` (соберёт клиент и запустит сервер на http://localhost:8001)
 
 ## Что можно удалить из корня после проверки
 `app.js`, `index.html`, `avatar.css`, `extra.css`, `interactions.css`, `map.css`, `popular.css`, `style.css`, `theme.css`, `ux.css`

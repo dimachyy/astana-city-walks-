@@ -8,6 +8,6 @@ if errorlevel 1 (
 )
 if not exist client\node_modules call npm --prefix client install
 call npm --prefix client run build
-start "" cmd /c "timeout /t 2 >nul & start http://localhost:8000"
+start "" cmd /c "timeout /t 2 >nul & start http://localhost:8001"
 node server.cjs
 pause
