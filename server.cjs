@@ -200,20 +200,20 @@ const fetchOverpass = async (query) => {
 };
 
 const nominatimTerms = {
-  cafe: ['cafe', 'coffee', 'restaurant'],
+  cafe: ['cafe', 'restaurant'],
   architecture: ['museum', 'theatre', 'mosque', 'attraction'],
   park: ['park', 'garden'],
-  photo: ['attraction', 'viewpoint', 'embankment'],
+  photo: ['viewpoint', 'attraction', 'embankment'],
 };
 
 const fetchNominatimPlaces = async (lat, lon, categories) => {
   const delta = 0.07;
   const viewbox = `${lon - delta},${lat + delta},${lon + delta},${lat - delta}`;
   const selected = activeCategories(categories);
-  const queries = selected.map((category) => ({ category, term: nominatimTerms[category][0] }));
+  const queries = selected.flatMap((category) => nominatimTerms[category].map((term) => ({ category, term })));
   const responses = await Promise.all(queries.map(async ({ category, term }) => {
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=kz&limit=20&dedupe=1&bounded=1&viewbox=${encodeURIComponent(viewbox)}&q=${encodeURIComponent(`${term}, Astana`)}`;
+      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=kz&limit=30&dedupe=1&bounded=1&viewbox=${encodeURIComponent(viewbox)}&q=${encodeURIComponent(term)}`;
       const response = await fetch(url, { signal: AbortSignal.timeout(8000), headers: { Accept: 'application/json', 'User-Agent': 'CityWalk-Astana/1.0 educational project' } });
       if (!response.ok) return [];
       const places = await response.json();

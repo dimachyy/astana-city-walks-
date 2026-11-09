@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { fetchPlaces } from '../api'
 import { useToast } from './useToast.js'
 import {
-  ASTANA_CENTER, CATEGORY_INFO, DEFAULT_QUERY, FALLBACK_LOCATIONS, MY_LOCATION, TIME_PRESETS, TRAVEL_MODES,
+  ASTANA_CENTER, CATEGORY_INFO, DEFAULT_QUERY, MY_LOCATION, TIME_PRESETS, TRAVEL_MODES,
 } from '../lib/constants.js'
 import { distanceKm, estimateMinutes, fetchRoute, geocode, orderStops, toPoint } from '../lib/geo.js'
 import { normalizePlaces } from '../lib/places.js'
@@ -34,8 +34,8 @@ export function usePlanner() {
   const searchedQuery = useRef(DEFAULT_QUERY)
 
   // места
-  const [locations, setLocations] = useState(FALLBACK_LOCATIONS)
-  const [placesStatus, setPlacesStatus] = useState('loading') // loading | ok | fallback
+  const [locations, setLocations] = useState([])
+  const [placesStatus, setPlacesStatus] = useState('loading') // loading | ok | empty
   const [searchId, setSearchId] = useState(0)
   const notifyNext = useRef(false)
   const autoLocateAttempted = useRef(false)
@@ -58,18 +58,18 @@ export function usePlanner() {
       .then((data) => {
         const found = normalizePlaces(data)
         const empty = found.length === 0
-        const knownIds = new Set(found.map((place) => place.id))
-        const combined = empty ? FALLBACK_LOCATIONS : [...found, ...FALLBACK_LOCATIONS.filter((place) => !knownIds.has(place.id))]
-        setLocations(combined)
-        setPlacesStatus(empty ? 'fallback' : 'ok')
-        if (notifyNext.current) toast(empty ? 'Показали базовые места: ничего не нашлось' : `Нашли ${found.length} мест рядом`)
+        // Не подставляем точки из центра города: они вводят пользователя в
+        // заблуждение и выглядят как «места рядом», хотя ими не являются.
+        setLocations(found)
+        setPlacesStatus(empty ? 'empty' : 'ok')
+        if (notifyNext.current) toast(empty ? 'Рядом пока не нашли мест в OpenStreetMap' : `Нашли ${found.length} мест рядом`)
         notifyNext.current = false
       })
       .catch((error) => {
         if (error.name === 'AbortError') return
-        setLocations(FALLBACK_LOCATIONS)
-        setPlacesStatus('fallback')
-        if (notifyNext.current) toast('Показали базовые места: сервис карт временно недоступен')
+        setLocations([])
+        setPlacesStatus('empty')
+        if (notifyNext.current) toast('Сервис мест временно недоступен — попробуйте обновить поиск')
         notifyNext.current = false
       })
     return () => controller.abort()
