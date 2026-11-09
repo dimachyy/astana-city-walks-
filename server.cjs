@@ -188,16 +188,15 @@ const placesQuery = (lat, lon, categories) => {
 
 const fetchOverpass = async (query) => {
   const endpoints = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
-  for (const endpoint of endpoints) {
-    try {
-      const response = await fetch(`${endpoint}?data=${encodeURIComponent(query)}`, {
-        signal: AbortSignal.timeout(30000),
-        headers: { Accept: 'application/json', 'User-Agent': 'CityWalk-Astana/1.0 educational project' },
-      });
-      if (response.ok) return await response.json();
-    } catch (error) { /* пробуем следующий публичный сервер Overpass */ }
-  }
-  throw new Error('Places service unavailable');
+  const requests = endpoints.map(async (endpoint) => {
+    const response = await fetch(`${endpoint}?data=${encodeURIComponent(query)}`, {
+      signal: AbortSignal.timeout(10000),
+      headers: { Accept: 'application/json', 'User-Agent': 'CityWalk-Astana/1.0 educational project' },
+    });
+    if (!response.ok) throw new Error(`Overpass ${response.status}`);
+    return response.json();
+  });
+  return Promise.any(requests);
 };
 
 const nominatimTerms = {
@@ -215,7 +214,7 @@ const fetchNominatimPlaces = async (lat, lon, categories) => {
   const responses = await Promise.all(queries.map(async ({ category, term }) => {
     try {
       const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=kz&limit=20&dedupe=1&bounded=1&viewbox=${encodeURIComponent(viewbox)}&q=${encodeURIComponent(`${term}, Astana`)}`;
-      const response = await fetch(url, { signal: AbortSignal.timeout(12000), headers: { Accept: 'application/json', 'User-Agent': 'CityWalk-Astana/1.0 educational project' } });
+      const response = await fetch(url, { signal: AbortSignal.timeout(8000), headers: { Accept: 'application/json', 'User-Agent': 'CityWalk-Astana/1.0 educational project' } });
       if (!response.ok) return [];
       const places = await response.json();
       return places.map((place) => ({
