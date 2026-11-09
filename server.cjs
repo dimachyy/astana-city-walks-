@@ -4,8 +4,8 @@ const path = require('path');
 const crypto = require('crypto');
 const { createUser, loginUser, getUser, profileData, saveUser, getReviews, saveReview } = require('./server/db.cjs');
 
-// 8000 часто занят другими локальными сервисами. Используем отдельный порт CityWalk.
-const PORT = Number(process.env.CITYWALK_PORT || 8001);
+// Выделенный порт CityWalk, чтобы не подключаться к старой копии сервера.
+const PORT = Number(process.env.CITYWALK_PORT || 8010);
 // Раздаём собранный React (npm run build в папке client)
 const root = path.join(__dirname, 'client', 'dist');
 const sessions = new Map();
