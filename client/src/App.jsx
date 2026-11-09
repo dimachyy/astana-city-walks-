@@ -4,6 +4,7 @@ import Hero from './components/Hero.jsx'
 import BuilderCard from './components/BuilderCard.jsx'
 import MapSection from './components/MapSection.jsx'
 import PopularSection from './components/PopularSection.jsx'
+import PlaceDetailsModal from './components/PlaceDetailsModal.jsx'
 import ProfileModal from './components/ProfileModal.jsx'
 import Footer from './components/Footer.jsx'
 import { usePlanner } from './hooks/usePlanner.js'
@@ -24,6 +25,7 @@ export default function App() {
   const [favorites, setFavorites] = useStored('citywalk-favorites', [])
   const [profileOpen, setProfileOpen] = useState(false)
   const [focus, setFocus] = useState(null) // место, на которое нужно приблизить карту
+  const [placeDetails, setPlaceDetails] = useState(null)
 
   const dark = theme === 'dark'
   const safeAvatar = AVATARS.some(([icon]) => icon === avatar) ? avatar : AVATARS[0][0]
@@ -87,10 +89,19 @@ export default function App() {
           </div>
           <BuilderCard planner={planner} />
         </section>
-        <MapSection planner={planner} focus={focus} onShowPlace={showOnMap} favorites={favorites} onToggleFavorite={toggleFavorite} />
-        <PopularSection onShowPlace={showOnMap} favorites={favorites} onToggleFavorite={toggleFavorite} account={accountApi.account} />
+        <MapSection planner={planner} focus={focus} onOpenPlace={setPlaceDetails} favorites={favorites} onToggleFavorite={toggleFavorite} />
+        <PopularSection onShowPlace={showOnMap} onOpenPlace={setPlaceDetails} favorites={favorites} onToggleFavorite={toggleFavorite} />
       </main>
       <Footer />
+      <PlaceDetailsModal
+        place={placeDetails}
+        open={Boolean(placeDetails)}
+        onClose={() => setPlaceDetails(null)}
+        onShowOnMap={(place) => showOnMap(place, { scroll: true })}
+        account={accountApi.account}
+        favorite={placeDetails ? favorites.some((item) => item.id === placeDetails.id) : false}
+        onToggleFavorite={toggleFavorite}
+      />
       <ProfileModal
         open={profileOpen}
         onClose={() => setProfileOpen(false)}

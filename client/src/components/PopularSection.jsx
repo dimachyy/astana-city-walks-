@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { fetchPopular } from '../api'
 import { FEATURED_FALLBACK } from '../lib/constants.js'
-import Reviews from './Reviews.jsx'
 
 const SHORT = 210
 
-export default function PopularSection({ onShowPlace, favorites, onToggleFavorite, account }) {
+export default function PopularSection({ onShowPlace, onOpenPlace, favorites, onToggleFavorite }) {
   const [places, setPlaces] = useState(null) // null = загружаем
 
   useEffect(() => {
@@ -33,7 +32,7 @@ export default function PopularSection({ onShowPlace, favorites, onToggleFavorit
         {places?.map((place) => {
           const description = place.description || 'Место для прогулки в Астане.'
           // единый вид места для карты и сохранённых
-          const asPlace = { id: place.id, name: place.name, lat: place.lat, lng: place.lon, icon: place.icon || '✦', type: 'Популярное место' }
+          const asPlace = { id: place.id, name: place.name, lat: place.lat, lng: place.lon, icon: place.icon || '✦', type: 'Популярное место', description, image: place.image, article: place.article }
           const saved = favorites.some((f) => f.id === place.id)
           return (
             <article className="popular-card" key={place.id}>
@@ -59,6 +58,7 @@ export default function PopularSection({ onShowPlace, favorites, onToggleFavorit
                 <p>{description.length > SHORT ? `${description.slice(0, SHORT)}…` : description}</p>
                 <div className="popular-meta">
                   <span className="popular-source">{place.image ? 'Фото Wikimedia' : 'Место на карте'}</span>
+                  <button type="button" className="popular-open" onClick={() => onOpenPlace(asPlace)}>Подробнее →</button>
                   <button type="button" className="popular-open" onClick={() => onShowPlace(asPlace, { scroll: true })}>
                     На карте →
                   </button>
@@ -68,7 +68,6 @@ export default function PopularSection({ onShowPlace, favorites, onToggleFavorit
                     Описание: <a href={place.article} target="_blank" rel="noreferrer">Wikipedia</a>
                   </div>
                 )}
-                <Reviews placeId={place.id} account={account} />
               </div>
             </article>
           )

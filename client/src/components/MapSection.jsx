@@ -1,6 +1,6 @@
 import CityMap from './CityMap.jsx'
 
-export default function MapSection({ planner: p, focus, onShowPlace, favorites, onToggleFavorite }) {
+export default function MapSection({ planner: p, focus, onOpenPlace, favorites, onToggleFavorite }) {
   const legend = p.nearby.slice(0, 8)
 
   return (
@@ -25,7 +25,7 @@ export default function MapSection({ planner: p, focus, onShowPlace, favorites, 
               const saved = favorites.some((f) => f.id === place.id)
               return (
                 <div className="map-place-row" key={place.id}>
-                  <button type="button" className="map-place" onClick={() => onShowPlace(place)}>
+                  <button type="button" className="map-place" onClick={() => onOpenPlace(place)}>
                     <span className="legend-dot" aria-hidden="true">{place.icon}</span>
                     <span>
                       <b>{place.name}</b>
