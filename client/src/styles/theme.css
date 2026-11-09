@@ -1,0 +1,70 @@
+/* CityWalk — тема v2. Все цвета и «настроение» дизайна живут здесь.
+   Тёмная тема переопределяет переменные одним блоком. */
+:root {
+  --ink: #0d2526;
+  --muted: #587072;
+  --cream: #f3f7f3;
+  --teal: #0d6b5f;
+  --teal-2: #19a68c;
+  --teal-text: #0b6a5e;
+  --accent: #2fb99f;
+  --gold: #f2a65a;
+  --danger: #e2685f;
+  --mint: #def4ea;
+  --mint-border: #b5e3d1;
+  --line: #e1ebe6;
+  --surface: #ffffff;
+  --surface-2: #f9fcfa;
+  --panel: #f3faf6;
+  --placeholder: #86989a;
+
+  /* форма и эффекты */
+  --radius: 22px;
+  --radius-sm: 14px;
+  --shadow: 0 1px 2px #0d25260a, 0 18px 40px -12px #0d252622;
+  --shadow-lg: 0 30px 70px -20px #0d252638;
+  --glass: #ffffffb8;
+  --glass-border: #ffffffcc;
+  --grad: linear-gradient(135deg, #0d6b5f 0%, #19a68c 100%);
+  --grad-text: linear-gradient(100deg, #0d6b5f 0%, #2fb99f 55%, #f2a65a 110%);
+  --glow: 0 10px 28px -6px #19a68c80;
+  --bg-mesh:
+    radial-gradient(900px 500px at 85% -10%, #b9efdc88, transparent 60%),
+    radial-gradient(700px 480px at -5% 20%, #ffe3bf70, transparent 60%);
+
+  --hero-bg: linear-gradient(170deg, #c9efe2 0%, #f9e6c9 100%);
+  --hero-bg-night: linear-gradient(170deg, #1b4a63 0%, #0c1d2b 100%);
+  --city-back: #7fb8ab;
+  --city-front: #2d7a72;
+  --city-back-night: #224d60;
+  --city-front-night: #0f2c40;
+}
+
+body.dark-theme {
+  --ink: #e8f4f0;
+  --muted: #a9c4bf;
+  --cream: #0a161d;
+  --teal: #19a68c;
+  --teal-text: #7fe0c8;
+  --mint: #12342f;
+  --mint-border: #2a6a5f;
+  --line: #213a42;
+  --surface: #12252d;
+  --surface-2: #17303a;
+  --panel: #0f2229;
+  --placeholder: #7f9d98;
+
+  --shadow: 0 1px 2px #0006, 0 18px 40px -12px #000a;
+  --shadow-lg: 0 30px 70px -20px #000c;
+  --glass: #12252dc4;
+  --glass-border: #ffffff14;
+  --grad: linear-gradient(135deg, #14917c 0%, #2fd0b0 100%);
+  --grad-text: linear-gradient(100deg, #7fe0c8 0%, #2fd0b0 50%, #ffc27d 110%);
+  --glow: 0 10px 30px -6px #2fd0b055;
+  --bg-mesh:
+    radial-gradient(900px 500px at 85% -10%, #19a68c30, transparent 60%),
+    radial-gradient(700px 480px at -5% 20%, #f2a65a18, transparent 60%);
+
+  --hero-bg: linear-gradient(170deg, #17475a 0%, #112c3a 100%);
+  --hero-bg-night: linear-gradient(170deg, #0f2a3c 0%, #070f18 100%);
+}
