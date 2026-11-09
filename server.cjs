@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { createUser, loginUser, getUser, publicUser, saveUser, getReviews, saveReview } = require('./server/db.cjs');
+const { createUser, loginUser, getUser, profileData, saveUser, getReviews, saveReview } = require('./server/db.cjs');
 
 // 8000 часто занят другими локальными сервисами. Используем отдельный порт CityWalk.
 const PORT = Number(process.env.CITYWALK_PORT || 8001);
@@ -45,7 +45,7 @@ const authError = (res) => sendJson(res, 401, { error: 'Требуется во�
 const proxyAuth = async (req, res) => {
   if (req.method === 'GET' && req.url === '/api/me') {
     const user = currentUser(req);
-    return sendJson(res, 200, { user: user ? publicUser(user) : null });
+    return sendJson(res, 200, { user: user ? profileData(user) : null });
   }
   if (req.method === 'POST' && (req.url === '/api/auth/register' || req.url === '/api/auth/login')) {
     const body = await readBody(req);
