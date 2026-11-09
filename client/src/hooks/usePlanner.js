@@ -58,7 +58,9 @@ export function usePlanner() {
       .then((data) => {
         const found = normalizePlaces(data)
         const empty = found.length === 0
-        setLocations(empty ? FALLBACK_LOCATIONS : found)
+        const knownIds = new Set(found.map((place) => place.id))
+        const combined = empty ? FALLBACK_LOCATIONS : [...found, ...FALLBACK_LOCATIONS.filter((place) => !knownIds.has(place.id))]
+        setLocations(combined)
         setPlacesStatus(empty ? 'fallback' : 'ok')
         if (notifyNext.current) toast(empty ? 'Показали базовые места: ничего не нашлось' : `Нашли ${found.length} мест рядом`)
         notifyNext.current = false
@@ -116,6 +118,7 @@ export function usePlanner() {
     setPreset(value)
     setCustomTime('')
   }
+  const clearCategories = () => setCategories([])
 
   // ---- район и геолокация ----
   const applyCenter = useCallback((point, query, zoom) => {
@@ -241,7 +244,7 @@ export function usePlanner() {
     // время
     preset, customTime, setCustomTime, choosePreset, minutes,
     // интересы
-    categories, toggleCategory, customInterests, addCustomInterest, toggleCustomInterest,
+    categories, toggleCategory, clearCategories, customInterests, addCustomInterest, toggleCustomInterest,
     // район
     areaQuery, setAreaQuery, searchArea, locate, locationStatus, userLocation, view,
     // места

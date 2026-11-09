@@ -44,6 +44,14 @@ export default function BuilderCard({ planner: p }) {
       {/* 2. Интересы */}
       <h3 className="builder-label">Что тебе интересно? Можно выбрать несколько</h3>
       <div className="mood-list">
+        <button
+          type="button"
+          className={`mood${p.categories.length === 0 ? ' active' : ''}`}
+          aria-pressed={p.categories.length === 0}
+          onClick={p.clearCategories}
+        >
+          ✦ <span>Все места</span>
+        </button>
         {CATEGORY_IDS.map((id) => (
           <button
             key={id}
