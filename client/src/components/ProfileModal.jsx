@@ -4,10 +4,15 @@ import { useToast } from '../hooks/useToast.js'
 
 export default function ProfileModal({
   open, onClose, name, setName, avatar, setAvatar, notes, setNotes, favorites, onToggleFavorite, onShowPlace,
+  account, accountLoading, authBusy, onLogin, onRegister, onLogout,
 }) {
   const toast = useToast()
   const [nameDraft, setNameDraft] = useState(name)
   const [noteDraft, setNoteDraft] = useState('')
+  const [authMode, setAuthMode] = useState('login')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [authError, setAuthError] = useState('')
   const closeRef = useRef(null)
 
   // при открытии: подтянуть имя, поставить фокус; Escape закрывает окно
@@ -39,6 +44,19 @@ export default function ProfileModal({
     toast('Аватар обновлён')
   }
 
+  const submitAuth = async (event) => {
+    event.preventDefault()
+    setAuthError('')
+    try {
+      if (authMode === 'login') await onLogin(email, password)
+      else await onRegister(email, password)
+      setPassword('')
+      toast(authMode === 'login' ? 'Вы вошли в CityWalk' : 'Аккаунт создан')
+    } catch (error) {
+      setAuthError(error.message)
+    }
+  }
+
   return (
     <div
       className={`profile-modal${open ? ' open' : ''}`}
@@ -53,9 +71,24 @@ export default function ProfileModal({
           <div>
             <span className="eyebrow">Твой CityWalk</span>
             <h2 id="profile-title">{name ? `Привет, ${name}` : 'Мой профиль'}</h2>
-            <p>Сохраняй идеи и заметки для будущих прогулок.</p>
+            <p>{account ? `Аккаунт: ${account.email}` : 'Войди, чтобы заметки и места сохранялись на всех устройствах.'}</p>
           </div>
         </div>
+
+        {!account && !accountLoading && (
+          <section className="auth-box">
+            <div className="auth-tabs">
+              <button type="button" className={authMode === 'login' ? 'active' : ''} onClick={() => { setAuthMode('login'); setAuthError('') }}>Войти</button>
+              <button type="button" className={authMode === 'register' ? 'active' : ''} onClick={() => { setAuthMode('register'); setAuthError('') }}>Регистрация</button>
+            </div>
+            <form className="auth-form" onSubmit={submitAuth}>
+              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Почта" required />
+              <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Пароль от 6 символов" minLength={6} required />
+              <button type="submit" disabled={authBusy}>{authBusy ? 'Подождите…' : authMode === 'login' ? 'Войти в аккаунт' : 'Создать аккаунт'}</button>
+            </form>
+            {authError && <p className="auth-error">{authError}</p>}
+          </section>
+        )}
 
         <div className="avatar-picker">
           <span>Путешественник:</span>
@@ -131,6 +164,7 @@ export default function ProfileModal({
             )}
           </div>
         </section>
+        {account && <button type="button" className="logout-button" onClick={() => onLogout().then(() => toast('Вы вышли из аккаунта'))}>Выйти из аккаунта</button>}
       </div>
     </div>
   )

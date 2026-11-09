@@ -14,6 +14,7 @@ npm install
 npm --prefix client install
 npm --prefix client install leaflet react-leaflet
 ```
+Для базы данных используется встроенная SQLite из Node.js, отдельный MySQL/PostgreSQL устанавливать не нужно. Нужен Node.js 22.5+.
 React 18 → `react-leaflet@4`, React 19 → `react-leaflet@5` (смотрите версию react в client/package.json).
 Роутер не нужен: сайт одностраничный.
 

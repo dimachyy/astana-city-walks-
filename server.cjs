@@ -1,11 +1,82 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+const { createUser, loginUser, getUser, publicUser, saveUser } = require('./server/db.cjs');
 
 // 8000 часто занят другими локальными сервисами. Используем отдельный порт CityWalk.
 const PORT = Number(process.env.CITYWALK_PORT || 8001);
 // Раздаём собранный React (npm run build в папке client)
 const root = path.join(__dirname, 'client', 'dist');
+const sessions = new Map();
+
+const parseCookies = (header = '') => Object.fromEntries(header.split(';').map((item) => {
+  const index = item.indexOf('=');
+  return index < 0 ? [item.trim(), ''] : [item.slice(0, index).trim(), decodeURIComponent(item.slice(index + 1).trim())];
+}).filter(([key]) => key));
+
+const currentUser = (req) => {
+  const token = parseCookies(req.headers.cookie).citywalk_session;
+  const userId = token && sessions.get(token);
+  return userId ? getUser(userId) : null;
+};
+
+const readBody = (req) => new Promise((resolve, reject) => {
+  let body = '';
+  req.on('data', (chunk) => {
+    body += chunk;
+    if (body.length > 1000000) req.destroy(new Error('Request too large'));
+  });
+  req.on('end', () => {
+    try { resolve(body ? JSON.parse(body) : {}); } catch { reject(new Error('Invalid JSON')); }
+  });
+  req.on('error', reject);
+});
+
+const setSession = (res, userId) => {
+  const token = crypto.randomBytes(32).toString('hex');
+  sessions.set(token, userId);
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `citywalk_session=${token}; HttpOnly; SameSite=Lax; Path=/${secure}`);
+};
+
+const authError = (res) => sendJson(res, 401, { error: 'Требуется войти в аккаунт' });
+
+const proxyAuth = async (req, res) => {
+  if (req.method === 'GET' && req.url === '/api/me') {
+    const user = currentUser(req);
+    return sendJson(res, 200, { user: user ? publicUser(user) : null });
+  }
+  if (req.method === 'POST' && (req.url === '/api/auth/register' || req.url === '/api/auth/login')) {
+    const body = await readBody(req);
+    const email = String(body.email || '').trim().toLowerCase();
+    const password = String(body.password || '');
+    if (!/^\S+@\S+\.\S+$/.test(email)) return sendJson(res, 400, { error: 'Введите корректную почту' });
+    if (password.length < 6) return sendJson(res, 400, { error: 'Пароль должен быть не короче 6 символов' });
+    try {
+      const user = req.url.endsWith('/register') ? createUser(email, password) : loginUser(email, password);
+      if (!user) return sendJson(res, 401, { error: 'Неверная почта или пароль' });
+      setSession(res, user.id);
+      return sendJson(res, 200, { user });
+    } catch (error) {
+      if (String(error.message).includes('UNIQUE')) return sendJson(res, 409, { error: 'Такая почта уже зарегистрирована' });
+      throw error;
+    }
+  }
+  if (req.method === 'POST' && req.url === '/api/auth/logout') {
+    const token = parseCookies(req.headers.cookie).citywalk_session;
+    if (token) sessions.delete(token);
+    res.setHeader('Set-Cookie', 'citywalk_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0');
+    return sendJson(res, 200, { ok: true });
+  }
+  if (req.method === 'PATCH' && req.url === '/api/me') {
+    const user = currentUser(req);
+    if (!user) return authError(res);
+    const body = await readBody(req);
+    return sendJson(res, 200, { user: saveUser(user.id, body) });
+  }
+  return sendJson(res, 404, { error: 'Not found' });
+};
 
 const types = {
   '.html': 'text/html; charset=utf-8',
@@ -146,6 +217,7 @@ const serveStatic = (req, res) => {
 
 const server = http.createServer(async (req, res) => {
   try {
+    if (req.url === '/api/me' || req.url.startsWith('/api/auth/')) return await proxyAuth(req, res);
     if (req.url.startsWith('/api/popular')) return await proxyPopular(res);
     if (req.url.startsWith('/api/places')) return await proxyPlaces(req, res);
     if (req.url.startsWith('/api/')) return sendJson(res, 404, { error: 'Not found' });

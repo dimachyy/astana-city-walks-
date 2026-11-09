@@ -220,3 +220,7 @@ __marimo__/
 # React source helpers (the generic template above ignores folders named lib)
 !client/src/lib/
 !client/src/lib/*.js
+
+# Local SQLite database (never commit user accounts or profile data)
+data/*.sqlite
+data/*.sqlite-*
