@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { fetchPlaces } from '../api'
-import { useToast } from '../components/toast.jsx'
+import { useToast } from './useToast.js'
 import {
   ASTANA_CENTER, CATEGORY_INFO, DEFAULT_QUERY, FALLBACK_LOCATIONS, MY_LOCATION, TIME_PRESETS, TRAVEL_MODES,
 } from '../lib/constants.js'
-import { distanceKm, estimateMinutes, fetchRoute, formatMinutes, geocode, orderStops, toPoint } from '../lib/geo.js'
+import { distanceKm, estimateMinutes, fetchRoute, geocode, orderStops, toPoint } from '../lib/geo.js'
 import { normalizePlaces } from '../lib/places.js'
 
 export const maxStopsFor = (minutes) => (minutes <= 60 ? 2 : minutes <= 120 ? 3 : 5)
@@ -53,7 +53,6 @@ export function usePlanner() {
   // Загрузка мест при смене района или интересов
   useEffect(() => {
     const controller = new AbortController()
-    setPlacesStatus('loading')
     fetchPlaces(center, catsKey, controller.signal)
       .then((data) => {
         const found = normalizePlaces(data)

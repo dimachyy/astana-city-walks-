@@ -8,7 +8,7 @@ import ProfileModal from './components/ProfileModal.jsx'
 import Footer from './components/Footer.jsx'
 import { usePlanner } from './hooks/usePlanner.js'
 import { useStored } from './hooks/useStored.js'
-import { useToast } from './components/toast.jsx'
+import { useToast } from './hooks/useToast.js'
 import { AVATARS } from './lib/constants.js'
 
 export default function App() {

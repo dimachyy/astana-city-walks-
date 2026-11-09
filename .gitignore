@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# React source helpers (the generic template above ignores folders named lib)
+!client/src/lib/
+!client/src/lib/*.js

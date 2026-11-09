@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AVATARS } from '../lib/constants.js'
-import { useToast } from './toast.jsx'
+import { useToast } from '../hooks/useToast.js'
 
 export default function ProfileModal({
   open, onClose, name, setName, avatar, setAvatar, notes, setNotes, favorites, onToggleFavorite, onShowPlace,
