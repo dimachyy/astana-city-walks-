@@ -95,6 +95,7 @@ export default function BuilderCard({ planner: p }) {
         <div className="nearby-title">
           Ближайшие интересные места <span>({p.nearby.length})</span>
         </div>
+        <p className="selection-hint">Можно выбрать места вручную или сразу нажать «Создать маршрут» — тогда возьмём ближайшие автоматически.</p>
         <div className="nearby-list">
           {p.nearby.length ? (
             p.nearby.map((place) => (

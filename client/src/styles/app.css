@@ -105,6 +105,7 @@ input::placeholder { color: var(--placeholder); }
 .nearby-title { font-size: 13px; font-weight: 800; margin: 20px 0 10px; }
 .nearby-title span { color: var(--muted); font-weight: 500; }
 .nearby-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.selection-hint { margin: 8px 0 10px; color: var(--muted); font-size: 11px; line-height: 1.4; }
 .nearby-place { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: var(--surface); cursor: pointer; transition: all 0.2s ease; min-width: 0; }
 .nearby-place:has(input:checked) { border-color: var(--accent); background: var(--mint); }
 .nearby-place input { accent-color: var(--teal-2); width: 18px; height: 18px; flex: none; }

@@ -113,10 +113,10 @@ const overpassFilters = {
   photo: '["tourism"~"attraction|viewpoint"]',
 };
 const overpassStatements = {
-  cafe: (lat, lon) => `nwr(around:3500,${lat},${lon})["amenity"~"cafe|restaurant|fast_food|bar|bakery|ice_cream"];`,
-  architecture: (lat, lon) => `nwr(around:3500,${lat},${lon})["tourism"~"museum|attraction|gallery|viewpoint|theme_park"];nwr(around:3500,${lat},${lon})["historic"];nwr(around:3500,${lat},${lon})["amenity"="theatre"];`,
-  park: (lat, lon) => `nwr(around:3500,${lat},${lon})["leisure"~"park|garden|nature_reserve|playground"];`,
-  photo: (lat, lon) => `nwr(around:3500,${lat},${lon})["tourism"~"attraction|viewpoint"];nwr(around:3500,${lat},${lon})["historic"];nwr(around:3500,${lat},${lon})["artwork_type"];`,
+  cafe: (lat, lon) => `nwr(around:8000,${lat},${lon})["amenity"~"cafe|restaurant|fast_food|bar|bakery|ice_cream"];`,
+  architecture: (lat, lon) => `nwr(around:8000,${lat},${lon})["tourism"~"museum|attraction|gallery|viewpoint|theme_park"];nwr(around:8000,${lat},${lon})["historic"];nwr(around:8000,${lat},${lon})["amenity"="theatre"];`,
+  park: (lat, lon) => `nwr(around:8000,${lat},${lon})["leisure"~"park|garden|nature_reserve|playground"];`,
+  photo: (lat, lon) => `nwr(around:8000,${lat},${lon})["tourism"~"attraction|viewpoint"];nwr(around:8000,${lat},${lon})["historic"];nwr(around:8000,${lat},${lon})["artwork_type"];`,
 };
 
 const featuredPlaces = [

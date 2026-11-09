@@ -201,11 +201,16 @@ export function usePlanner() {
         pool = [...selectedPlaces].sort(byDistance).slice(0, maxStops)
         if (selectedPlaces.length > maxStops) toast(`Для этого времени взяли ближайшие ${maxStops} места`)
       } else {
-        pool = ranked.filter((p) => matchesCategory(p) && distanceKm(center, toPoint(p)) < radius).slice(0, maxStops)
+        const matching = ranked.filter(matchesCategory)
+        pool = matching.filter((p) => distanceKm(center, toPoint(p)) < radius).slice(0, maxStops)
+        // Если рядом мало данных OSM, всё равно строим маршрут по ближайшим найденным точкам.
+        if (!pool.length) pool = matching.slice(0, maxStops)
+        if (!pool.length) pool = ranked.slice(0, maxStops)
       }
       if (!pool.length) throw new Error('Выберите хотя бы одно место рядом')
 
       const stops = orderStops(center, pool)
+      setSelectedIds(stops.map((stop) => stop.id))
       const waypoints = [center, ...stops.map(toPoint)]
       const routeData = await fetchRoute(waypoints)
       const geometry = routeData?.geometry ?? { type: 'LineString', coordinates: waypoints.map((p) => [p[1], p[0]]) }
