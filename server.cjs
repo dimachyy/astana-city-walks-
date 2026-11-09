@@ -128,7 +128,7 @@ const featuredPlaces = [
   { id: 'featured-garden', name: 'Ботанический сад', wiki: 'Ботанический сад (Астана)', imageQuery: 'Ботанический сад Астана', lat: 51.0904, lon: 71.4171, icon: '🌳', shortDescription: 'Большая зелёная территория для прогулок, отдыха и фотографий.' },
   { id: 'featured-opera', name: 'Astana Opera', wiki: 'Astana Opera', imageQuery: 'Astana Opera', lat: 51.1286, lon: 71.4307, icon: '🎭', shortDescription: 'Один из крупнейших театров Астаны с концертами, операми и балетами.' },
   { id: 'featured-mosque', name: 'Мечеть Хазрет Султан', wiki: 'Мечеть Хазрет Султан', imageQuery: 'Мечеть Хазрет Султан Астана', lat: 51.1233, lon: 71.4697, icon: '🕌', shortDescription: 'Одна из крупнейших мечетей Центральной Азии с узнаваемой белой архитектурой.' },
-  { id: 'featured-nuralem', name: 'Музей энергии будущего Нур-Алем', wiki: 'Нур-Алем', imageQuery: 'Нур Алем Астана', lat: 51.0908, lon: 71.4179, icon: '🔵', shortDescription: 'Сферическое здание и музей технологий на территории EXPO.' },
+  { id: 'featured-nuralem', name: 'Музей энергии будущего Нур-Алем', wiki: 'Нур-Алем', imageQuery: 'Нур Алем Астана', fallbackImage: 'https://commons.wikimedia.org/wiki/Special:FilePath/Expo%202017%20%22Nur%20Alem%22%20Pavilion%20Space%20Exhibition.jpg?width=900', lat: 51.0908, lon: 71.4179, icon: '🔵', shortDescription: 'Сферическое здание и музей технологий на территории EXPO.' },
   { id: 'featured-embankment', name: 'Набережная Ишима', wiki: 'Ишим (река)', imageQuery: 'Набережная Ишима Астана', lat: 51.1281, lon: 71.4358, icon: '🌊', shortDescription: 'Живописное место для спокойной прогулки, фото и отдыха у реки.' },
   { id: 'featured-lovers-park', name: 'Парк Влюблённых', wiki: 'Парк Влюблённых (Астана)', imageQuery: 'Парк Влюбленных Астана', lat: 51.1322, lon: 71.4237, icon: '🌳', shortDescription: 'Небольшой городской парк рядом с прогулочными маршрутами центра.' },
 ];
@@ -163,10 +163,10 @@ const loadPopular = () => Promise.all(featuredPlaces.map(async (place) => {
   try {
     const response = await fetch(`https://ru.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(place.wiki)}`);
     const summary = response.ok ? await response.json() : {};
-    const image = summary.thumbnail?.source || await commonsImage(place.imageQuery || place.name);
+    const image = summary.thumbnail?.source || await commonsImage(place.imageQuery || place.name) || place.fallbackImage || '';
     return { ...place, description: place.shortDescription || summary.extract || 'Популярное место для прогулки по Астане.', image, article: summary.content_urls?.desktop?.page || `https://ru.wikipedia.org/wiki/${encodeURIComponent(place.wiki)}` };
   } catch (error) {
-    return { ...place, description: place.shortDescription || 'Популярное место для прогулки по Астане.', image: '', article: `https://ru.wikipedia.org/wiki/${encodeURIComponent(place.wiki)}` };
+    return { ...place, description: place.shortDescription || 'Популярное место для прогулки по Астане.', image: place.fallbackImage || '', article: `https://ru.wikipedia.org/wiki/${encodeURIComponent(place.wiki)}` };
   }
 }));
 
