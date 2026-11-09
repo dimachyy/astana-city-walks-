@@ -38,6 +38,7 @@ export function usePlanner() {
   const [placesStatus, setPlacesStatus] = useState('loading') // loading | ok | fallback
   const [searchId, setSearchId] = useState(0)
   const notifyNext = useRef(false)
+  const autoLocateAttempted = useRef(false)
 
   // выбор и маршрут
   const [selectedIds, setSelectedIds] = useState([])
@@ -117,7 +118,7 @@ export function usePlanner() {
   }
 
   // ---- район и геолокация ----
-  const applyCenter = (point, query, zoom) => {
+  const applyCenter = useCallback((point, query, zoom) => {
     setSelectedIds([])
     setRoute(null)
     searchedQuery.current = query
@@ -125,7 +126,7 @@ export function usePlanner() {
     setCenter(point)
     setSearchId((n) => n + 1)
     setView({ center: point, zoom })
-  }
+  }, [])
 
   const searchArea = async () => {
     const query = areaQuery.trim()
@@ -138,7 +139,7 @@ export function usePlanner() {
     }
   }
 
-  const locate = () => {
+  const locate = useCallback(() => {
     if (!navigator.geolocation) return setLocationStatus('Этот браузер не поддерживает геолокацию.')
     if (!window.isSecureContext) return setLocationStatus('Геолокация работает только через http://localhost или HTTPS.')
     setLocationStatus('Определяем ваше местоположение…')
@@ -157,7 +158,16 @@ export function usePlanner() {
       },
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
     )
-  }
+  }, [applyCenter, toast])
+
+  // Запрашиваем геопозицию автоматически при каждом открытии приложения.
+  // Браузер покажет системный запрос, если разрешение ещё не выбрано.
+  // Если разрешение уже дано, координаты обновятся без повторного окна.
+  useEffect(() => {
+    if (autoLocateAttempted.current) return
+    autoLocateAttempted.current = true
+    locate()
+  }, [locate])
 
   // ---- выбор мест ----
   const toggleSelected = (id) =>
