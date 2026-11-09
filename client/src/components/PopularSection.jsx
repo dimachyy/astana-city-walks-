@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { fetchPopular } from '../api'
 import { FEATURED_FALLBACK } from '../lib/constants.js'
+import Reviews from './Reviews.jsx'
 
 const SHORT = 210
 
-export default function PopularSection({ onShowPlace, favorites, onToggleFavorite }) {
+export default function PopularSection({ onShowPlace, favorites, onToggleFavorite, account }) {
   const [places, setPlaces] = useState(null) // null = загружаем
 
   useEffect(() => {
@@ -67,6 +68,7 @@ export default function PopularSection({ onShowPlace, favorites, onToggleFavorit
                     Описание: <a href={place.article} target="_blank" rel="noreferrer">Wikipedia</a>
                   </div>
                 )}
+                <Reviews placeId={place.id} account={account} />
               </div>
             </article>
           )

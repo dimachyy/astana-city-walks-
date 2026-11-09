@@ -88,7 +88,7 @@ export default function App() {
           <BuilderCard planner={planner} />
         </section>
         <MapSection planner={planner} focus={focus} onShowPlace={showOnMap} favorites={favorites} onToggleFavorite={toggleFavorite} />
-        <PopularSection onShowPlace={showOnMap} favorites={favorites} onToggleFavorite={toggleFavorite} />
+        <PopularSection onShowPlace={showOnMap} favorites={favorites} onToggleFavorite={toggleFavorite} account={accountApi.account} />
       </main>
       <Footer />
       <ProfileModal

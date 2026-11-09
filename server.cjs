@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { createUser, loginUser, getUser, publicUser, saveUser } = require('./server/db.cjs');
+const { createUser, loginUser, getUser, publicUser, saveUser, getReviews, saveReview } = require('./server/db.cjs');
 
 // 8000 часто занят другими локальными сервисами. Используем отдельный порт CityWalk.
 const PORT = Number(process.env.CITYWALK_PORT || 8001);
@@ -76,6 +76,20 @@ const proxyAuth = async (req, res) => {
     return sendJson(res, 200, { user: saveUser(user.id, body) });
   }
   return sendJson(res, 404, { error: 'Not found' });
+};
+
+const proxyReviews = async (req, res) => {
+  const requestUrl = new URL(req.url, `http://localhost:${PORT}`);
+  const placeId = requestUrl.searchParams.get('placeId');
+  if (!placeId) return sendJson(res, 400, { error: 'Не указано место' });
+  if (req.method === 'GET') return sendJson(res, 200, getReviews(placeId));
+  if (req.method === 'POST') {
+    const user = currentUser(req);
+    if (!user) return authError(res);
+    const body = await readBody(req);
+    return sendJson(res, 200, saveReview(user.id, placeId, body.rating, body.text));
+  }
+  return sendJson(res, 405, { error: 'Method not allowed' });
 };
 
 const types = {
@@ -218,6 +232,7 @@ const serveStatic = (req, res) => {
 const server = http.createServer(async (req, res) => {
   try {
     if (req.url === '/api/me' || req.url.startsWith('/api/auth/')) return await proxyAuth(req, res);
+    if (req.url.startsWith('/api/reviews')) return await proxyReviews(req, res);
     if (req.url.startsWith('/api/popular')) return await proxyPopular(res);
     if (req.url.startsWith('/api/places')) return await proxyPlaces(req, res);
     if (req.url.startsWith('/api/')) return sendJson(res, 404, { error: 'Not found' });

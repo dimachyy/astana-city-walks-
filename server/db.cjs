@@ -19,6 +19,15 @@ db.exec(`
     favorites_json TEXT NOT NULL DEFAULT '[]',
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
+  CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    place_id TEXT NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    text TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(place_id, user_id)
+  );
 `);
 
 const hashPassword = (password, salt = crypto.randomBytes(16).toString('hex')) => {
@@ -49,6 +58,12 @@ const findById = db.prepare('SELECT * FROM users WHERE id = ?');
 const findByEmail = db.prepare('SELECT * FROM users WHERE email = ? COLLATE NOCASE');
 const insertUser = db.prepare('INSERT INTO users (email, password_hash) VALUES (?, ?)');
 const updateUser = db.prepare('UPDATE users SET name = ?, avatar = ?, notes_json = ?, favorites_json = ? WHERE id = ?');
+const listReviews = db.prepare(`SELECT reviews.id, reviews.place_id, reviews.rating, reviews.text, reviews.created_at,
+  users.name, users.avatar FROM reviews JOIN users ON users.id = reviews.user_id
+  WHERE reviews.place_id = ? ORDER BY reviews.created_at DESC LIMIT 30`);
+const reviewSummary = db.prepare('SELECT COUNT(*) AS count, COALESCE(ROUND(AVG(rating), 1), 0) AS average FROM reviews WHERE place_id = ?');
+const insertReview = db.prepare('INSERT INTO reviews (place_id, user_id, rating, text) VALUES (?, ?, ?, ?)');
+const updateReview = db.prepare('UPDATE reviews SET rating = ?, text = ?, created_at = CURRENT_TIMESTAMP WHERE place_id = ? AND user_id = ?');
 const getUser = (id) => findById.get(id);
 
 const createUser = (email, password) => {
@@ -73,4 +88,22 @@ const saveUser = (id, values) => {
   return publicUser(getUser(id));
 };
 
-module.exports = { createUser, loginUser, getUser, publicUser, saveUser };
+const getReviews = (placeId) => ({
+  summary: reviewSummary.get(placeId),
+  reviews: listReviews.all(placeId),
+});
+
+const saveReview = (userId, placeId, rating, text) => {
+  const cleanPlace = String(placeId || '').slice(0, 120);
+  const cleanText = String(text || '').trim().slice(0, 500);
+  const cleanRating = Math.max(1, Math.min(5, Number(rating) || 0));
+  if (!cleanPlace || !cleanText || !cleanRating) throw new Error('Заполните оценку и текст отзыва');
+  try { insertReview.run(cleanPlace, userId, cleanRating, cleanText); }
+  catch (error) {
+    if (!String(error.message).includes('UNIQUE')) throw error;
+    updateReview.run(cleanRating, cleanText, cleanPlace, userId);
+  }
+  return getReviews(cleanPlace);
+};
+
+module.exports = { createUser, loginUser, getUser, publicUser, saveUser, getReviews, saveReview };

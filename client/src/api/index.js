@@ -28,3 +28,5 @@ export const loginAccount = (email, password) => sendJson('/api/auth/login', 'PO
 export const registerAccount = (email, password) => sendJson('/api/auth/register', 'POST', { email, password })
 export const logoutAccount = () => sendJson('/api/auth/logout', 'POST', {})
 export const updateAccount = (values) => sendJson('/api/me', 'PATCH', values)
+export const fetchReviews = (placeId, signal) => getJson(`/api/reviews?placeId=${encodeURIComponent(placeId)}`, signal)
+export const saveReview = (placeId, rating, text) => sendJson(`/api/reviews?placeId=${encodeURIComponent(placeId)}`, 'POST', { rating, text })
