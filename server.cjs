@@ -200,6 +200,48 @@ const fetchOverpass = async (query) => {
   throw new Error('Places service unavailable');
 };
 
+const nominatimTerms = {
+  cafe: ['cafe', 'coffee', 'restaurant'],
+  architecture: ['museum', 'theatre', 'mosque', 'attraction'],
+  park: ['park', 'garden'],
+  photo: ['attraction', 'viewpoint', 'embankment'],
+};
+
+const fetchNominatimPlaces = async (lat, lon, categories) => {
+  const delta = 0.07;
+  const viewbox = `${lon - delta},${lat + delta},${lon + delta},${lat - delta}`;
+  const selected = activeCategories(categories);
+  const queries = selected.map((category) => ({ category, term: nominatimTerms[category][0] }));
+  const responses = await Promise.all(queries.map(async ({ category, term }) => {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=kz&limit=20&dedupe=1&bounded=1&viewbox=${encodeURIComponent(viewbox)}&q=${encodeURIComponent(`${term}, Astana`)}`;
+      const response = await fetch(url, { signal: AbortSignal.timeout(12000), headers: { Accept: 'application/json', 'User-Agent': 'CityWalk-Astana/1.0 educational project' } });
+      if (!response.ok) return [];
+      const places = await response.json();
+      return places.map((place) => ({
+        type: 'nominatim',
+        id: place.place_id,
+        lat: Number(place.lat),
+        lon: Number(place.lon),
+        tags: { name: place.name || place.display_name?.split(',')[0], _category: category, amenity: category === 'cafe' ? 'cafe' : undefined, tourism: category === 'architecture' || category === 'photo' ? 'attraction' : undefined, leisure: category === 'park' ? 'park' : undefined },
+      })).filter((place) => place.tags.name && Number.isFinite(place.lat) && Number.isFinite(place.lon));
+    } catch { return []; }
+  }));
+  const unique = new Map();
+  responses.flat().forEach((place) => unique.set(`${place.tags.name}|${place.lat.toFixed(4)}|${place.lon.toFixed(4)}`, place));
+  return { elements: [...unique.values()] };
+};
+
+const fetchPlacesWithFallback = async (lat, lon, categories) => {
+  let primary = { elements: [] };
+  try {
+    primary = await fetchOverpass(placesQuery(lat, lon, categories));
+  } catch { /* пробуем Nominatim ниже */ }
+  if ((primary.elements || []).length >= 8) return primary;
+  const backup = await fetchNominatimPlaces(lat, lon, categories);
+  return { elements: [...(primary.elements || []), ...(backup.elements || [])] };
+};
+
 const proxyPlaces = async (req, res) => {
   const requestUrl = new URL(req.url, `http://localhost:${PORT}`);
   const lat = Number(requestUrl.searchParams.get('lat'));
@@ -208,7 +250,7 @@ const proxyPlaces = async (req, res) => {
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return sendJson(res, 400, { error: 'Invalid coordinates' });
   const key = `places:${lat.toFixed(3)},${lon.toFixed(3)}:${activeCategories(categories).sort().join(',')}`;
   try {
-    const data = await cached(key, 10 * 60 * 1000, () => fetchOverpass(placesQuery(lat, lon, categories)));
+    const data = await cached(key, 10 * 60 * 1000, () => fetchPlacesWithFallback(lat, lon, categories));
     return sendJson(res, 200, data);
   } catch (error) {
     return sendJson(res, 502, { error: 'Places service unavailable' });

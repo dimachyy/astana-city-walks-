@@ -1,4 +1,5 @@
 const categoryFromTags = (tags = {}) => {
+  if (tags._category) return tags._category
   if (tags.amenity && /cafe|restaurant|fast_food|bar|bakery|ice_cream/.test(tags.amenity)) return 'cafe'
   if (tags.historic || tags.amenity === 'theatre') return 'architecture'
   if (tags.artwork_type) return 'photo'
