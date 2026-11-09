@@ -106,6 +106,8 @@ input::placeholder { color: var(--placeholder); }
 .nearby-title span { color: var(--muted); font-weight: 500; }
 .nearby-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .selection-hint { margin: 8px 0 10px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.data-hint { margin: 10px 0; padding: 10px 12px; border: 1px solid #e5c87b; border-radius: 12px; background: #fff7d9; color: #6f5a18; font-size: 11px; line-height: 1.4; }
+body.dark-theme .data-hint { border-color: #806a27; background: #302912; color: #f4dc86; }
 .nearby-place { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: var(--surface); cursor: pointer; transition: all 0.2s ease; min-width: 0; }
 .nearby-place:has(input:checked) { border-color: var(--accent); background: var(--mint); }
 .nearby-place input { accent-color: var(--teal-2); width: 18px; height: 18px; flex: none; }

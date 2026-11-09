@@ -190,7 +190,10 @@ const fetchOverpass = async (query) => {
   const endpoints = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
   for (const endpoint of endpoints) {
     try {
-      const response = await fetch(`${endpoint}?data=${encodeURIComponent(query)}`, { signal: AbortSignal.timeout(30000) });
+      const response = await fetch(`${endpoint}?data=${encodeURIComponent(query)}`, {
+        signal: AbortSignal.timeout(30000),
+        headers: { Accept: 'application/json', 'User-Agent': 'CityWalk-Astana/1.0 educational project' },
+      });
       if (response.ok) return await response.json();
     } catch (error) { /* пробуем следующий публичный сервер Overpass */ }
   }

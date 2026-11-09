@@ -3,6 +3,8 @@ import { CATEGORY_IDS, CATEGORY_INFO, TIME_PRESETS, TRAVEL_MODES } from '../lib/
 import { formatMinutes } from '../lib/geo.js'
 import { maxStopsFor } from '../hooks/usePlanner.js'
 
+const distanceLabel = (km) => (km < 1 ? `${Math.round(km * 1000)} м` : `${km.toFixed(1)} км`)
+
 export default function BuilderCard({ planner: p }) {
   const [interest, setInterest] = useState('')
 
@@ -99,6 +101,9 @@ export default function BuilderCard({ planner: p }) {
           <button type="button" className="location-btn" onClick={p.locate}>◎ Моё местоположение</button>
         </form>
         <div className="location-status">{p.locationStatus}</div>
+        {p.placesStatus === 'fallback' && (
+          <div className="data-hint">Сервис карт временно не ответил. Показываем ближайшие проверенные точки Астаны — попробуйте обновить поиск позже.</div>
+        )}
 
         <div className="nearby-title">
           Ближайшие интересные места <span>({p.nearby.length})</span>
@@ -116,7 +121,7 @@ export default function BuilderCard({ planner: p }) {
                 <span className="nearby-icon" aria-hidden="true">{place.icon}</span>
                 <span>
                   <b>{place.name}</b>
-                  <small>{place.type} · {place.km.toFixed(1)} км рядом</small>
+                    <small>{place.type} · {distanceLabel(place.km)} от вас</small>
                 </span>
               </label>
             ))

@@ -26,13 +26,27 @@ export const TRAVEL_MODES = {
 export const FALLBACK_LOCATIONS = [
   { id: 'fallback-baiterek', name: 'Байтерек', type: 'Архитектура и культура', category: 'architecture', lat: 51.1283, lng: 71.4304, icon: '🏛️' },
   { id: 'fallback-museum', name: 'Национальный музей', type: 'Архитектура и культура', category: 'architecture', lat: 51.1256, lng: 71.4681, icon: '🏛️' },
+  { id: 'fallback-khan', name: 'Хан Шатыр', type: 'Архитектура и культура', category: 'architecture', lat: 51.1326, lng: 71.4037, icon: '🏙️' },
+  { id: 'fallback-opera', name: 'Astana Opera', type: 'Архитектура и культура', category: 'architecture', lat: 51.1286, lng: 71.4307, icon: '🎭' },
+  { id: 'fallback-hazret', name: 'Мечеть Хазрет Султан', type: 'Архитектура и культура', category: 'architecture', lat: 51.1233, lng: 71.4697, icon: '🕌' },
+  { id: 'fallback-peace', name: 'Дворец мира и согласия', type: 'Архитектура и культура', category: 'architecture', lat: 51.1235, lng: 71.4694, icon: '🔺' },
   { id: 'fallback-garden', name: 'Ботанический сад', type: 'Парки и природа', category: 'park', lat: 51.0904, lng: 71.4171, icon: '🌳' },
   { id: 'fallback-expo', name: 'Территория EXPO', type: 'Архитектура и культура', category: 'architecture', lat: 51.0907, lng: 71.4188, icon: '🏛️' },
+  { id: 'fallback-nuralem', name: 'Нур-Алем', type: 'Места для фото', category: 'photo', lat: 51.0908, lng: 71.4179, icon: '🔵' },
   { id: 'fallback-park', name: 'Парк Влюблённых', type: 'Парки и природа', category: 'park', lat: 51.1322, lng: 71.4237, icon: '🌳' },
+  { id: 'fallback-central-park', name: 'Центральный парк', type: 'Парки и природа', category: 'park', lat: 51.1518, lng: 71.4454, icon: '🌳' },
+  { id: 'fallback-city-park', name: 'Городской парк', type: 'Парки и природа', category: 'park', lat: 51.1641, lng: 71.4304, icon: '🌳' },
+  { id: 'fallback-abay', name: 'Парк имени Абая', type: 'Парки и природа', category: 'park', lat: 51.1542, lng: 71.4245, icon: '🌳' },
   { id: 'fallback-cafe', name: 'Кофейни на Нуржол', type: 'Кафе и еда', category: 'cafe', lat: 51.1288, lng: 71.4318, icon: '☕' },
+  { id: 'fallback-cafe-khan', name: 'Кафе у Хан Шатыра', type: 'Кафе и еда', category: 'cafe', lat: 51.1324, lng: 71.4050, icon: '☕' },
+  { id: 'fallback-cafe-park', name: 'Кафе у Центрального парка', type: 'Кафе и еда', category: 'cafe', lat: 51.1513, lng: 71.4438, icon: '☕' },
   { id: 'fallback-photo-embankment', name: 'Набережная Ишима', type: 'Места для фото', category: 'photo', lat: 51.1281, lng: 71.4358, icon: '📸' },
   { id: 'fallback-photo-arbat', name: 'Арбат Астаны', type: 'Места для фото', category: 'photo', lat: 51.1343, lng: 71.4314, icon: '📸' },
   { id: 'fallback-photo-baiterek', name: 'Площадь у Байтерека', type: 'Места для фото', category: 'photo', lat: 51.1283, lng: 71.4304, icon: '📸' },
+  { id: 'fallback-photo-station', name: 'Район вокзала Нурлы Жол', type: 'Места для фото', category: 'photo', lat: 51.1890, lng: 71.4106, icon: '📸' },
+  { id: 'fallback-station', name: 'Вокзал Нурлы Жол', type: 'Архитектура и культура', category: 'architecture', lat: 51.1890, lng: 71.4106, icon: '🚉' },
+  { id: 'fallback-mega', name: 'Mega Silk Way', type: 'Архитектура и культура', category: 'architecture', lat: 51.0865, lng: 71.4170, icon: '🏙️' },
+  { id: 'fallback-university', name: 'Назарбаев Университет', type: 'Архитектура и культура', category: 'architecture', lat: 51.0901, lng: 71.3975, icon: '🏛️' },
 ]
 
 export const FEATURED_FALLBACK = [
