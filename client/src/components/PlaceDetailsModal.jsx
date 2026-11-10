@@ -34,8 +34,14 @@ export default function PlaceDetailsModal({ place, open, onClose, onShowOnMap, a
         </div>
         <section className="place-reviews-section">
           <h3>Отзывы пользователей</h3>
-          <p className="section-subtitle">Поделитесь впечатлением — отзыв сохранится в базе CityWalk.</p>
-          <Reviews placeId={place.id} account={account} />
+          {account ? (
+            <>
+              <p className="section-subtitle">Поделитесь впечатлением — отзыв сохранится в базе CityWalk.</p>
+              <Reviews placeId={place.id} account={account} />
+            </>
+          ) : (
+            <p className="section-subtitle">Войдите или создайте профиль, чтобы читать и оставлять комментарии к местам.</p>
+          )}
         </section>
       </article>
     </div>

@@ -35,7 +35,15 @@ export default function App() {
   }, [dark])
 
   useEffect(() => {
-    if (!accountApi.account) return
+    if (!accountApi.account) {
+      // Анонимный пользователь не должен видеть данные предыдущего аккаунта
+      // из localStorage и не должен получать доступ к его сохранённым местам.
+      setName('')
+      setAvatar(AVATARS[0][0])
+      setNotes([])
+      setFavorites([])
+      return
+    }
     setName(accountApi.account.name || '')
     setAvatar(accountApi.account.avatar || AVATARS[0][0])
     setNotes(accountApi.account.notes || [])
@@ -43,12 +51,20 @@ export default function App() {
   }, [accountApi.account, setAvatar, setFavorites, setName, setNotes])
 
   const saveProfileField = useCallback((field, value) => {
+    if (!accountApi.account) {
+      toast('Войдите или создайте профиль, чтобы сохранять данные')
+      return
+    }
     if (field === 'name') setName(value)
     if (field === 'avatar') setAvatar(value)
     if (accountApi.account) accountApi.update({ [field]: value }).catch((error) => toast(error.message))
   }, [accountApi, setAvatar, setName, toast])
 
   const saveNotes = useCallback((value) => {
+    if (!accountApi.account) {
+      toast('Войдите или создайте профиль, чтобы сохранять заметки')
+      return
+    }
     setNotes(value)
     if (accountApi.account) accountApi.update({ notes: value }).catch((error) => toast(error.message))
   }, [accountApi, setNotes, toast])
@@ -59,6 +75,10 @@ export default function App() {
   }, [])
 
   const toggleFavorite = useCallback((place) => {
+    if (!accountApi.account) {
+      toast('Войдите или создайте профиль, чтобы сохранять места')
+      return
+    }
     const exists = favorites.some((item) => item.id === place.id)
     const next = exists
       ? favorites.filter((item) => item.id !== place.id)
