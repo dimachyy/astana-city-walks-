@@ -48,6 +48,21 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, place_id)
   );
+  CREATE TABLE IF NOT EXISTS route_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL DEFAULT 'Прогулка по Астане',
+    mode TEXT NOT NULL DEFAULT 'foot',
+    duration_minutes INTEGER NOT NULL DEFAULT 0,
+    distance_km REAL NOT NULL DEFAULT 0,
+    available_minutes INTEGER NOT NULL DEFAULT 0,
+    categories_json TEXT NOT NULL DEFAULT '[]',
+    origin_lat REAL NOT NULL,
+    origin_lng REAL NOT NULL,
+    places_json TEXT NOT NULL DEFAULT '[]',
+    geometry_json TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 const hashPassword = (password, salt = crypto.randomBytes(16).toString('hex')) => {
@@ -90,6 +105,17 @@ const listReviews = db.prepare(`SELECT reviews.id, reviews.place_id, reviews.rat
 const reviewSummary = db.prepare('SELECT COUNT(*) AS count, COALESCE(ROUND(AVG(rating), 1), 0) AS average FROM reviews WHERE place_id = ?');
 const insertReview = db.prepare('INSERT INTO reviews (place_id, user_id, rating, text) VALUES (?, ?, ?, ?)');
 const updateReview = db.prepare('UPDATE reviews SET rating = ?, text = ?, created_at = CURRENT_TIMESTAMP WHERE place_id = ? AND user_id = ?');
+const listRoutes = db.prepare(`SELECT id, title, mode, duration_minutes, distance_km, available_minutes,
+  categories_json, origin_lat, origin_lng, places_json, geometry_json, created_at
+  FROM route_history WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT 50`);
+const insertRoute = db.prepare(`INSERT INTO route_history
+  (user_id, title, mode, duration_minutes, distance_km, available_minutes, categories_json,
+   origin_lat, origin_lng, places_json, geometry_json)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+const deleteRoute = db.prepare('DELETE FROM route_history WHERE id = ? AND user_id = ?');
+const getRouteById = db.prepare(`SELECT id, title, mode, duration_minutes, distance_km, available_minutes,
+  categories_json, origin_lat, origin_lng, places_json, geometry_json, created_at
+  FROM route_history WHERE id = ? AND user_id = ?`);
 const getUser = (id) => findById.get(id);
 
 const profileData = (user) => ({
@@ -100,6 +126,53 @@ const profileData = (user) => ({
   notes: listNotes.all(user.id).map((item) => item.text),
   favorites: listFavorites.all(user.id),
 });
+
+const routeData = (row) => ({
+  id: row.id,
+  title: row.title,
+  mode: row.mode,
+  durationMinutes: Number(row.duration_minutes) || 0,
+  distanceKm: Number(row.distance_km) || 0,
+  availableMinutes: Number(row.available_minutes) || 0,
+  categories: safeJson(row.categories_json, []),
+  origin: { lat: Number(row.origin_lat), lng: Number(row.origin_lng) },
+  places: safeJson(row.places_json, []),
+  geometry: safeJson(row.geometry_json, null),
+  createdAt: row.created_at,
+});
+
+const getRoutes = (userId) => listRoutes.all(userId).map(routeData);
+
+const addRoute = (userId, values) => {
+  const origin = values?.origin || {};
+  const places = Array.isArray(values?.places) ? values.places.slice(0, 12) : [];
+  const categories = Array.isArray(values?.categories) ? values.categories.slice(0, 12) : [];
+  const lat = Number(origin.lat);
+  const lng = Number(origin.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || !places.length) throw new Error('Маршрут должен содержать начало и хотя бы одно место');
+  const mode = ['foot', 'car', 'bus'].includes(values.mode) ? values.mode : 'foot';
+  const title = String(values.title || 'Прогулка по Астане').trim().slice(0, 80) || 'Прогулка по Астане';
+  const duration = Math.max(0, Math.min(1440, Math.round(Number(values.durationMinutes) || 0)));
+  const available = Math.max(0, Math.min(1440, Math.round(Number(values.availableMinutes) || 0)));
+  const distance = Math.max(0, Math.min(1000, Number(values.distanceKm) || 0));
+  const geometry = values.geometry && typeof values.geometry === 'object' ? JSON.stringify(values.geometry).slice(0, 1000000) : null;
+  const result = insertRoute.run(
+    userId,
+    title,
+    mode,
+    duration,
+    distance,
+    available,
+    JSON.stringify(categories),
+    lat,
+    lng,
+    JSON.stringify(places),
+    geometry,
+  );
+  return routeData(getRouteById.get(result.lastInsertRowid, userId));
+};
+
+const removeRoute = (userId, routeId) => Boolean(deleteRoute.run(Number(routeId), userId).changes);
 
 const migrateJsonData = () => {
   const users = db.prepare('SELECT id, notes_json, favorites_json FROM users').all();
@@ -175,4 +248,4 @@ const saveReview = (userId, placeId, rating, text) => {
   return getReviews(cleanPlace);
 };
 
-module.exports = { createUser, loginUser, getUser, publicUser, profileData, saveUser, getReviews, saveReview };
+module.exports = { createUser, loginUser, getUser, publicUser, profileData, saveUser, getReviews, saveReview, getRoutes, addRoute, removeRoute };

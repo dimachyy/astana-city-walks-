@@ -74,5 +74,8 @@ export const loginAccount = (email, password) => sendJson('/api/auth/login', 'PO
 export const registerAccount = (email, password) => sendJson('/api/auth/register', 'POST', { email, password })
 export const logoutAccount = () => sendJson('/api/auth/logout', 'POST', {})
 export const updateAccount = (values) => sendJson('/api/me', 'PATCH', values)
+export const fetchRoutes = () => getJson('/api/routes')
+export const saveRoute = (route) => sendJson('/api/routes', 'POST', route)
+export const deleteRoute = (routeId) => sendJson(`/api/routes/${encodeURIComponent(routeId)}`, 'DELETE', {})
 export const fetchReviews = (placeId, signal) => getJson(`/api/reviews?placeId=${encodeURIComponent(placeId)}`, signal)
 export const saveReview = (placeId, rating, text) => sendJson(`/api/reviews?placeId=${encodeURIComponent(placeId)}`, 'POST', { rating, text })

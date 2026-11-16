@@ -16,7 +16,7 @@ const GEO_ERRORS = {
 }
 
 // Всё состояние конструктора маршрута: интересы, район, найденные места, выбор, построенный маршрут.
-export function usePlanner() {
+export function usePlanner({ onRouteBuilt } = {}) {
   const toast = useToast()
 
   // время и интересы
@@ -222,7 +222,7 @@ export function usePlanner() {
         : waypoints.slice(1).reduce((sum, point, i) => sum + distanceKm(waypoints[i], point), 0)
       const total = estimateMinutes(mode, km, routeData)
 
-      setRoute({ geometry, mode, straight: !routeData, stopIds: stops.map((s) => s.id) })
+      setRoute({ geometry, mode, straight: !routeData, stopIds: stops.map((s) => s.id), origin: center, stops })
       const notes = [mode === 'bus' && 'ориентировочно', !routeData && 'по прямой'].filter(Boolean)
       setRouteText(`${TRAVEL_MODES[mode].label} · ${km.toFixed(1)} км · примерно ${total} мин${notes.length ? ` · ${notes.join(', ')}` : ''}`)
 
@@ -231,6 +231,25 @@ export function usePlanner() {
         ...categories.map((id) => CATEGORY_INFO[id].chip),
         ...customInterests.filter((i) => i.active).map((i) => i.label),
       ].join(', ')
+      onRouteBuilt?.({
+        title: interests ? `Прогулка: ${interests}` : 'Прогулка по Астане',
+        mode,
+        durationMinutes: total,
+        distanceKm: Number(km.toFixed(2)),
+        availableMinutes: minutes,
+        categories: [...categories, ...customInterests.filter((i) => i.active).map((i) => i.label)],
+        origin: { lat: center[0], lng: center[1] },
+        places: stops.map((place) => ({
+          id: place.id,
+          name: place.name,
+          lat: place.lat,
+          lng: place.lng,
+          icon: place.icon,
+          type: place.type,
+          category: place.category,
+        })),
+        geometry,
+      })
       toast(`Маршрут создан: ${TRAVEL_MODES[mode].label} · ${timeLabel} · ${interests || 'все места'}`)
     } catch (error) {
       toast(error.message || 'Не удалось построить маршрут')
@@ -239,6 +258,34 @@ export function usePlanner() {
       setBuilding(false)
     }
   }
+
+  const restoreRoute = useCallback((savedRoute) => {
+    if (!savedRoute?.origin || !Array.isArray(savedRoute.places) || !savedRoute.places.length) return
+    const point = [Number(savedRoute.origin.lat), Number(savedRoute.origin.lng)]
+    const restoredPlaces = savedRoute.places.filter((place) => Number.isFinite(place.lat) && Number.isFinite(place.lng))
+    setLocations((prev) => {
+      const merged = new Map(prev.map((place) => [place.id, place]))
+      restoredPlaces.forEach((place) => merged.set(place.id, place))
+      return [...merged.values()]
+    })
+    setCenter(point)
+    // Историческая точка не является текущей геопозицией пользователя.
+    setUserLocation(null)
+    setAreaQuery(MY_LOCATION)
+    setSelectedIds(restoredPlaces.map((place) => place.id))
+    setMode(savedRoute.mode || 'foot')
+    setRoute({
+      geometry: savedRoute.geometry || { type: 'LineString', coordinates: [point, ...restoredPlaces.map((place) => [place.lat, place.lng])].map(([lat, lng]) => [lng, lat]) },
+      mode: savedRoute.mode || 'foot',
+      straight: !savedRoute.geometry,
+      stopIds: restoredPlaces.map((place) => place.id),
+      origin: point,
+      stops: restoredPlaces,
+    })
+    setRouteText(`${TRAVEL_MODES[savedRoute.mode || 'foot']?.label || 'Пешком'} · ${Number(savedRoute.distanceKm || 0).toFixed(1)} км · примерно ${savedRoute.durationMinutes || 0} мин`)
+    setView({ center: point, zoom: 14 })
+    toast('Маршрут открыт из истории')
+  }, [toast])
 
   return {
     // время
@@ -250,6 +297,6 @@ export function usePlanner() {
     // места
     ranked, nearby, placesStatus, selectedIds, toggleSelected, clearSelection,
     // маршрут
-    mode, setMode, route, routeText, building, buildRoute,
+    mode, setMode, route, routeText, building, buildRoute, restoreRoute,
   }
 }

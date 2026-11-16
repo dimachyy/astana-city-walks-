@@ -9,6 +9,7 @@ export default function Header({ dark, onToggleTheme, avatar, onOpenProfile }) {
         <a href="#builder">Создать маршрут</a>
         <a href="#popular">Популярные места</a>
         <a href="#map-section">Карта</a>
+        <a href="#history">История</a>
         <a href="#about">О сервисе</a>
       </nav>
       <div className="top-actions">

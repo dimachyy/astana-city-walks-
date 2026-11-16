@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { createUser, loginUser, getUser, profileData, saveUser, getReviews, saveReview } = require('./server/db.cjs');
+const { createUser, loginUser, getUser, profileData, saveUser, getReviews, saveReview, getRoutes, addRoute, removeRoute } = require('./server/db.cjs');
 
 // Выделенный порт CityWalk, чтобы не подключаться к старой копии сервера.
 const PORT = Number(process.env.CITYWALK_PORT || 8010);
@@ -88,6 +88,22 @@ const proxyReviews = async (req, res) => {
     if (!user) return authError(res);
     const body = await readBody(req);
     return sendJson(res, 200, saveReview(user.id, placeId, body.rating, body.text));
+  }
+  return sendJson(res, 405, { error: 'Method not allowed' });
+};
+
+const proxyRoutes = async (req, res) => {
+  const user = currentUser(req);
+  if (!user) return authError(res);
+  if (req.method === 'GET' && req.url === '/api/routes') return sendJson(res, 200, { routes: getRoutes(user.id) });
+  if (req.method === 'POST' && req.url === '/api/routes') {
+    const body = await readBody(req);
+    return sendJson(res, 201, { route: addRoute(user.id, body) });
+  }
+  if (req.method === 'DELETE') {
+    const routeId = new URL(req.url, `http://localhost:${PORT}`).pathname.split('/').pop();
+    if (!/^\d+$/.test(routeId)) return sendJson(res, 400, { error: 'Некорректный маршрут' });
+    return sendJson(res, 200, { ok: removeRoute(user.id, routeId) });
   }
   return sendJson(res, 405, { error: 'Method not allowed' });
 };
@@ -281,6 +297,7 @@ const serveStatic = (req, res) => {
 const server = http.createServer(async (req, res) => {
   try {
     if (req.url === '/api/me' || req.url.startsWith('/api/auth/')) return await proxyAuth(req, res);
+    if (req.url === '/api/routes' || req.url.startsWith('/api/routes/')) return await proxyRoutes(req, res);
     if (req.url.startsWith('/api/reviews')) return await proxyReviews(req, res);
     if (req.url.startsWith('/api/popular')) return await proxyPopular(res);
     if (req.url.startsWith('/api/places')) return await proxyPlaces(req, res);

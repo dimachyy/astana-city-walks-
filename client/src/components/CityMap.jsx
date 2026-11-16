@@ -62,7 +62,12 @@ export default function CityMap({ places, focus, view, route, userLocation }) {
   const markerRefs = useRef(new Map())
   const routeIds = route?.stopIds ?? []
   // место из «Популярного» может не входить в найденные — рисуем для него отдельный маркер
-  const shown = focus && !places.some((p) => p.id === focus.id) ? [...places, focus] : places
+  const routeStops = route?.stops || []
+  const shownMap = new Map(places.map((place) => [place.id, place]))
+  routeStops.forEach((place) => shownMap.set(place.id, place))
+  if (focus) shownMap.set(focus.id, focus)
+  const shown = [...shownMap.values()]
+  const routeStart = route?.origin || userLocation
 
   return (
     <MapContainer center={MAP_CENTER} zoom={12.5} zoomControl={false} className="city-map">
@@ -91,10 +96,10 @@ export default function CityMap({ places, focus, view, route, userLocation }) {
           </Popup>
         </Marker>
       ))}
-      {userLocation && (
-        <CircleMarker center={userLocation} radius={9} pathOptions={{ color: '#fff', weight: 3, fillColor: '#e56f61', fillOpacity: 1 }}>
+      {routeStart && (
+        <CircleMarker center={routeStart} radius={9} pathOptions={{ color: '#fff', weight: 3, fillColor: '#e56f61', fillOpacity: 1 }}>
           <Popup>
-            <b>Вы здесь</b>
+            <b>{userLocation ? 'Вы здесь' : 'Начало сохранённого маршрута'}</b>
             <br />
             <small>Начало маршрута</small>
           </Popup>

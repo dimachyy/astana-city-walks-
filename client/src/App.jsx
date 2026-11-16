@@ -7,16 +7,19 @@ import PopularSection from './components/PopularSection.jsx'
 import PlaceDetailsModal from './components/PlaceDetailsModal.jsx'
 import ProfileModal from './components/ProfileModal.jsx'
 import Footer from './components/Footer.jsx'
+import RouteHistory from './components/RouteHistory.jsx'
 import { usePlanner } from './hooks/usePlanner.js'
 import { useAccount } from './hooks/useAccount.js'
 import { useStored } from './hooks/useStored.js'
 import { useToast } from './hooks/useToast.js'
+import { deleteRoute, fetchRoutes, saveRoute } from './api/index.js'
 import { AVATARS } from './lib/constants.js'
 
 export default function App() {
   const toast = useToast()
-  const planner = usePlanner()
   const accountApi = useAccount()
+  const [routeHistory, setRouteHistory] = useState([])
+  const [historyLoading, setHistoryLoading] = useState(false)
 
   const [theme, setTheme] = useStored('citywalk-theme', 'light')
   const [name, setName] = useStored('citywalk-name', '')
@@ -26,6 +29,21 @@ export default function App() {
   const [profileOpen, setProfileOpen] = useState(false)
   const [focus, setFocus] = useState(null) // место, на которое нужно приблизить карту
   const [placeDetails, setPlaceDetails] = useState(null)
+
+  const handleRouteBuilt = useCallback(async (route) => {
+    if (!accountApi.account) {
+      toast('Войдите в профиль, чтобы сохранять историю маршрутов')
+      return
+    }
+    try {
+      const data = await saveRoute(route)
+      setRouteHistory((previous) => [data.route, ...previous.filter((item) => item.id !== data.route.id)])
+    } catch (error) {
+      toast(error.message || 'Не удалось сохранить маршрут')
+    }
+  }, [accountApi.account, toast])
+
+  const planner = usePlanner({ onRouteBuilt: handleRouteBuilt })
 
   const dark = theme === 'dark'
   const safeAvatar = AVATARS.some(([icon]) => icon === avatar) ? avatar : AVATARS[0][0]
@@ -49,6 +67,28 @@ export default function App() {
     setNotes(accountApi.account.notes || [])
     setFavorites(accountApi.account.favorites || [])
   }, [accountApi.account, setAvatar, setFavorites, setName, setNotes])
+
+  useEffect(() => {
+    if (!accountApi.account) {
+      setRouteHistory([])
+      return
+    }
+    setHistoryLoading(true)
+    fetchRoutes()
+      .then((data) => setRouteHistory(Array.isArray(data.routes) ? data.routes : []))
+      .catch((error) => toast(error.message || 'Историю маршрутов не удалось загрузить'))
+      .finally(() => setHistoryLoading(false))
+  }, [accountApi.account, toast])
+
+  const removeRoute = useCallback(async (routeId) => {
+    try {
+      await deleteRoute(routeId)
+      setRouteHistory((previous) => previous.filter((item) => item.id !== routeId))
+      toast('Маршрут удалён из истории')
+    } catch (error) {
+      toast(error.message || 'Не удалось удалить маршрут')
+    }
+  }, [toast])
 
   const saveProfileField = useCallback((field, value) => {
     if (!accountApi.account) {
@@ -110,6 +150,14 @@ export default function App() {
           <BuilderCard planner={planner} />
         </section>
         <MapSection planner={planner} focus={focus} onOpenPlace={setPlaceDetails} favorites={favorites} onToggleFavorite={toggleFavorite} />
+        <RouteHistory
+          account={accountApi.account}
+          routes={routeHistory}
+          loading={historyLoading}
+          onOpenRoute={planner.restoreRoute}
+          onDeleteRoute={removeRoute}
+          onOpenProfile={() => setProfileOpen(true)}
+        />
         <PopularSection onShowPlace={showOnMap} onOpenPlace={setPlaceDetails} favorites={favorites} onToggleFavorite={toggleFavorite} />
       </main>
       <Footer />
