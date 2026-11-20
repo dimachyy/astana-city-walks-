@@ -353,3 +353,55 @@ body.dark-theme footer { background: #07131a; border-top: 1px solid var(--line);
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* ---------- телефоны: доработки адаптива ---------- */
+@media (max-width: 750px) {
+  /* iOS Safari дёргает фон с background-attachment: fixed */
+  body { background-attachment: scroll; }
+
+  /* шапка: навигация второй строкой с горизонтальной прокруткой */
+  .topbar { flex-wrap: wrap; height: auto; min-height: 60px; padding: 8px 8px 6px 16px; border-radius: 26px; row-gap: 4px; }
+  .desktop-nav { display: flex; order: 3; flex: 0 0 100%; margin: 0 0 0 -8px; gap: 2px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+  .desktop-nav::-webkit-scrollbar { display: none; }
+  .desktop-nav a { flex: none; font-size: 13px; padding: 7px 12px; scroll-snap-align: start; }
+  section[id], main [id] { scroll-margin-top: 120px; }
+
+  /* поля ввода не меньше 16px — иначе iPhone зумит страницу при фокусе */
+  input, select, textarea, .custom-time input, .route-input input, .custom-interest input,
+  .profile-name input, .note-form input, .auth-form input, .review-form input, .review-form textarea { font-size: 16px; }
+
+  /* главный экран */
+  .hero-actions { gap: 6px; }
+  .hero-actions .primary-btn { flex: 1 1 100%; }
+  .hero-actions .text-btn { margin: 0 auto; }
+  .note-one { top: 34px; left: 12px; right: auto; max-width: calc(100% - 24px); }
+  .note-two { top: 128px; bottom: auto; right: 12px; max-width: calc(100% - 24px); }
+  .weather-time { bottom: 18px; width: 100%; }
+  .weather-time span { font-size: 26px; white-space: nowrap; }
+
+  /* карточки популярных мест: кнопки в один ряд, без переноса стрелки */
+  .popular-photo { height: 170px; }
+  .popular-body p { min-height: 0; }
+  .popular-meta { flex-wrap: wrap; gap: 8px; }
+  .popular-source { flex: 0 0 100%; }
+  .popular-open { flex: 1 1 0; white-space: nowrap; padding: 0 12px; }
+
+  /* карта */
+  .city-map { height: 300px; }
+
+  /* модальные окна почти на весь экран, с прокруткой внутри */
+  .profile-modal, .place-modal { padding: 10px; align-items: flex-end; }
+  .profile-window, .place-window { max-height: calc(100dvh - 20px); padding: 20px 18px; border-radius: 24px; overscroll-behavior: contain; }
+  .modal-close { top: 6px; right: 6px; z-index: 2; background: var(--surface); box-shadow: 0 4px 14px -4px #0004; }
+
+  /* уведомления в несколько строк */
+  .toast { border-radius: 18px; bottom: max(16px, env(safe-area-inset-bottom)); text-align: center; }
+}
+
+@media (max-width: 380px) {
+  .hero h1 { font-size: 38px; letter-spacing: -1.8px; }
+  .section-heading h2 { font-size: 25px; }
+  .builder-card { padding: 18px 14px; }
+  .time-option, .mood, .mode-option { padding: 10px 14px; }
+  .brand { font-size: 18px; }
+}
